@@ -35,6 +35,8 @@ jobs:
               "dashboard.part-00",
               "dashboard.part-01-0",
               "dashboard.part-01-1",
+              "dashboard.part-01-2",
+              "dashboard.part-01-3",
               "dashboard.part-02",
               "dashboard.part-03",
           ]
