@@ -1,8 +1,6 @@
 name: Deploy Dashboard EdP to GitHub Pages
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -30,43 +28,20 @@ jobs:
           python - <<'PY'
           import base64, brotli
           from pathlib import Path
-
-          prefix_parts = [
+          parts = [
               "dashboard.part-00",
               "dashboard.part-01-0",
               "dashboard.part-01-1",
               "dashboard.part-01-2",
               "dashboard.part-01-3",
+              "dashboard.part-02",
+              "dashboard.part-03",
           ]
-          suffix = Path("dashboard.part-03").read_text().strip()
-          middle = Path("dashboard.part-02").read_text().strip()
-          prefix = "".join(Path(p).read_text().strip() for p in prefix_parts)
-
-          def unpack(src):
-              return brotli.decompress(base64.b64decode(src))
-
-          try:
-              html = unpack(prefix + middle + suffix)
-          except brotli.error:
-              # The uploaded middle chunk contains one accidental extra base64
-              # character. Repair it deterministically by finding the single
-              # deletion that recreates the valid Brotli stream.
-              html = None
-              for i in range(len(middle)):
-                  candidate = prefix + middle[:i] + middle[i+1:] + suffix
-                  try:
-                      html = unpack(candidate)
-                      print(f"Repaired dashboard.part-02 by removing character at {i}")
-                      break
-                  except Exception:
-                      pass
-              if html is None:
-                  raise RuntimeError("Could not reconstruct dashboard bundle")
-
+          src = "".join(Path(p).read_text().strip() for p in parts)
+          html = brotli.decompress(base64.b64decode(src))
           out = Path("_site")
           out.mkdir(exist_ok=True)
           (out / "index.html").write_bytes(html)
-          print(f"Built index.html: {len(html)} bytes")
           PY
 
       - name: Configure Pages
