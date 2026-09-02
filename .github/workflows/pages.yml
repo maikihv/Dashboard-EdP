@@ -1,5 +1,4 @@
 name: Deploy Dashboard EdP to GitHub Pages
-# Final approved visual deployment
 
 on:
   push:
@@ -25,53 +24,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build exact approved dashboard
+      - name: Prepare static site
         run: |
-          python -m pip install --quiet brotli
-          python - <<'PY'
-          import base64, brotli
-          from pathlib import Path
-
-          parts = [
-              "dashboard.part-00",
-              "dashboard.part-01-0",
-              "dashboard.part-01-1",
-              "dashboard.part-01-2",
-              "dashboard.part-01-3",
-              "dashboard.part-02",
-              "dashboard.part-03",
-          ]
-
-          src = "".join(Path(p).read_text().strip() for p in parts)
-          html = brotli.decompress(base64.b64decode(src)).decode("utf-8")
-
-          old = '.navbtn{width:100%;border:0;background:transparent;color:#dce7ff;text-align:left;padding:13px 14px;border-radius:14px;margin:4px 0;cursor:pointer;font-weight:700}'
-          new = '.navbtn{display:block;text-decoration:none;width:100%;border:0;background:transparent;color:#dce7ff;text-align:left;padding:13px 14px;border-radius:14px;margin:4px 0;cursor:pointer;font-weight:700}'
-
-          if old not in html:
-              raise RuntimeError("Expected navigation style was not found")
-          html = html.replace(old, new, 1)
-
-          required = [
-              '01 · Resumen ejecutivo',
-              '02 · Proyectos',
-              '03 · Riesgos y decisiones',
-              '99 · Configuración',
-              'loadExcel(event)',
-              'downloadTemplate()',
-              'saveDashboard()',
-              'function detail(i)',
-          ]
-          missing = [x for x in required if x not in html]
-          if missing:
-              raise RuntimeError(f"Dashboard validation failed: {missing}")
-
-          out = Path("_site")
-          out.mkdir(exist_ok=True)
-          payload = html.encode("utf-8")
-          (out / "index.html").write_bytes(payload)
-          print(f"Built approved index.html: {len(payload)} bytes")
-          PY
+          test -f index.html
+          mkdir -p _site
+          cp index.html _site/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
