@@ -1,4 +1,5 @@
 name: Deploy Dashboard EdP to GitHub Pages
+# Final approved visual deployment
 
 on:
   push:
