@@ -1,8 +1,6 @@
 name: Deploy Dashboard EdP to GitHub Pages
 
 on:
-  push:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -36,10 +34,7 @@ jobs:
               "dashboard.part-01-1",
               "dashboard.part-01-2",
               "dashboard.part-01-3",
-              "dashboard.part-02-0",
-              "dashboard.part-02-1",
-              "dashboard.part-02-2",
-              "dashboard.part-02-3",
+              "dashboard.part-02",
               "dashboard.part-03",
           ]
           src = "".join(Path(p).read_text().strip() for p in parts)
