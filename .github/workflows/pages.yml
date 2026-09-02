@@ -30,10 +30,26 @@ jobs:
           python - <<'PY'
           import base64, brotli
           from pathlib import Path
-          src = Path("dashboard.br.b64").read_text().strip()
+
+          parts = [
+              "dashboard.part-00",
+              "dashboard.part-01-0",
+              "dashboard.part-01-1",
+              "dashboard.part-02",
+              "dashboard.part-03",
+          ]
+          missing = [p for p in parts if not Path(p).exists()]
+          if missing:
+              raise FileNotFoundError(f"Missing dashboard bundle parts: {missing}")
+
+          src = "".join(Path(p).read_text().strip() for p in parts)
+          decoded = base64.b64decode(src)
+          html = brotli.decompress(decoded)
+
           out = Path("_site")
           out.mkdir(exist_ok=True)
-          (out / "index.html").write_bytes(brotli.decompress(base64.b64decode(src)))
+          (out / "index.html").write_bytes(html)
+          print(f"Built index.html: {len(html)} bytes")
           PY
 
       - name: Configure Pages
